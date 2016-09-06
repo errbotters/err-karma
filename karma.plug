@@ -1,0 +1,9 @@
+[Core]
+Name = Karma
+Module = karma
+
+[Documentation]
+Description = Track user's karma.
+
+[Python]
+Version = 2+
