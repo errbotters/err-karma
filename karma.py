@@ -58,13 +58,19 @@ class Karma(BotPlugin):
         self['karma'] = karmas
         return "{0}'s karma level is: {1}".format(user, karmas[user])
 
+    def number_suffix(self, num):
+        suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
+        i = num if (num < 20) else (num % 10)
+        return suffixes.get(i, 'th')
+
     @botcmd
     def top_karma(self, msg, args):
-        """Get 5 people with most karma points."""
+        """Get n people with most karma points. If argument not
+        specified, get 5 people with most karma points."""
         karmas = self['karma']
         output = ''
         karmees = sorted([(value, key) for (key, value) in karmas.items()],
-                        reverse=True)
+                         reverse=True)
 
         n = 5
         if len(args) > 0:
@@ -73,12 +79,12 @@ class Karma(BotPlugin):
                 n = int(args)
             except ValueError:
                 return "Argument must be a number!"
-
+        return self.number_suffix(n)
         karmees = karmees[:n]
 
-        suffixes = ['', 'st', 'nd', 'rd', 'th', 'th']
-
         for pos, (k, v) in enumerate(karmees, start=1):
-            output += '{0}{1} {2} with {3}\n'.format(pos, suffixes[pos], v, k)
+            output += '{0}{1} {2} with {3}\n'.format(pos,
+                                                     self.number_suffix(pos),
+                                                     v, k)
 
         return output
