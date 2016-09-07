@@ -14,11 +14,9 @@ class Karma(BotPlugin):
         except KeyError:
             self['karma'] = {}
 
-    @re_botcmd(pattern=KARMA_INC_REGEX, prefixed=False)
-    def karma_inc(self, msg, match):
-        """Increment user's karma (e.g. user++)"""
+    def update_karma(self, msg, match, increment):
         name = match.group(1)
-        pluses = match.group(2)
+        update = match.group(2)
         nick = msg.frm.nick
         karmas = self['karma']
 
@@ -27,26 +25,23 @@ class Karma(BotPlugin):
         else:
             if name not in karmas:
                 karmas[name] = 0
-            karmas[name] += len(pluses)//2
 
-        self['karma'] = karmas 
+            if increment:
+                karmas[name] += len(update)//2
+            else:
+                karmas[name] -= len(update)//2
+
+        self['karma'] = karmas
+
+    @re_botcmd(pattern=KARMA_INC_REGEX, prefixed=False)
+    def karma_inc(self, msg, match):
+        """Increment user's karma (e.g. user++)"""
+        self.update_karma(msg, match, True)
 
     @re_botcmd(pattern=KARMA_DEC_REGEX, prefixed=False)
     def karma_dec(self, msg, match):
         """Decrement user's karma (e.g. user--)"""
-        name = match.group(1)
-        minuses = match.group(2)
-        nick = msg.frm.nick
-        karmas = self['karma']
-
-        if name == nick:
-            return 'Not in this universe, maggot!'
-        else:
-            if name not in karmas:
-                karmas[name] = 0
-            karmas[name] -= len(minuses)//2
-
-        self['karma'] = karmas 
+        self.update_karma(msg, match, False)
 
     @botcmd
     def karma(self, msg, args):
@@ -67,15 +62,23 @@ class Karma(BotPlugin):
     def top_karma(self, msg, args):
         """Get 5 people with most karma points."""
         karmas = self['karma']
-        output = ""
+        output = ''
         karmees = sorted([(value, key) for (key, value) in karmas.items()],
                         reverse=True)
-        # Takes top 5 or less if len(karmees) < 5
-        karmees = karmees[:5]
+
+        n = 5
+        if len(args) > 0:
+            # Takes top 'n' or less if len(karmees) < n
+            try:
+                n = int(args)
+            except ValueError:
+                return "Argument must be a number!"
+
+        karmees = karmees[:n]
 
         suffixes = ['', 'st', 'nd', 'rd', 'th', 'th']
 
         for pos, (k, v) in enumerate(karmees, start=1):
-            output += "{0}{1} {2} with {3}\n".format(pos, suffixes[pos], v, k)
+            output += '{0}{1} {2} with {3}\n'.format(pos, suffixes[pos], v, k)
 
         return output
