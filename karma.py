@@ -36,12 +36,12 @@ class Karma(BotPlugin):
     @re_botcmd(pattern=KARMA_INC_REGEX, prefixed=False)
     def karma_inc(self, msg, match):
         """Increment user's karma (e.g. user++)"""
-        self.update_karma(msg, match, True)
+        return self.update_karma(msg, match, True)
 
     @re_botcmd(pattern=KARMA_DEC_REGEX, prefixed=False)
     def karma_dec(self, msg, match):
         """Decrement user's karma (e.g. user--)"""
-        self.update_karma(msg, match, False)
+        return self.update_karma(msg, match, False)
 
     @botcmd
     def karma(self, msg, args):
