@@ -79,7 +79,6 @@ class Karma(BotPlugin):
                 n = int(args)
             except ValueError:
                 return "Argument must be a number!"
-        return self.number_suffix(n)
         karmees = karmees[:n]
 
         for pos, (k, v) in enumerate(karmees, start=1):
